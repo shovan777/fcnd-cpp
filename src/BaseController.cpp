@@ -15,7 +15,7 @@ BaseController::BaseController(string config)
 void BaseController::Init()
 {
 #ifndef __PX4_NUTTX
-  ParamsHandle config = SimpleConfig::GetInstance();
+   ParamsHandle config = SimpleConfig::GetInstance();
 
   optFlowX = 0;
   optFlowY = 0;

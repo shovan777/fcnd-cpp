@@ -9,7 +9,6 @@
 UseIdealEstimator=1
 
 # Physical properties
-# at 0.5 
 Mass = 0.4
 L = 0.17
 Ixx = 0.0023
