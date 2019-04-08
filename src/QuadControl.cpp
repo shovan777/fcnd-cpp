@@ -74,7 +74,21 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   cmd.desiredThrustsN[1] = mass * 9.81f / 4.f; // front right
   cmd.desiredThrustsN[2] = mass * 9.81f / 4.f; // rear left
   cmd.desiredThrustsN[3] = mass * 9.81f / 4.f; // rear right
-
+  float momentX = momentCmd.X;
+  float momentY = momentCmd.Y;
+  float momentZ = momentCmd.Z;
+  L = L / sqrt(2);
+//  momentDrag = collThrustCmd * kappa;
+  float fT = collThrustCmd;
+  float fX = momentX / L;
+  float fY = momentY / L;
+  float fZ = momentZ / kappa;
+  
+  float f4 = fZ - fX + fY - fT;
+  float f3 =
+//   as per 3d control
+  
+  
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return cmd;
