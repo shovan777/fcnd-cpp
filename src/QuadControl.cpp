@@ -74,18 +74,30 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   cmd.desiredThrustsN[1] = mass * 9.81f / 4.f; // front right
   cmd.desiredThrustsN[2] = mass * 9.81f / 4.f; // rear left
   cmd.desiredThrustsN[3] = mass * 9.81f / 4.f; // rear right
-  float momentX = momentCmd.X;
-  float momentY = momentCmd.Y;
-  float momentZ = momentCmd.Z;
-  L = L / sqrt(2);
+  float momentX = momentCmd.x;
+  float momentY = momentCmd.y;
+  float momentZ = momentCmd.z;
+  float l = L / sqrt(2.f);
 //  momentDrag = collThrustCmd * kappa;
   float fT = collThrustCmd;
-  float fX = momentX / L;
-  float fY = momentY / L;
+  float fX = momentX / l;
+  float fY = momentY / l;
   float fZ = momentZ / kappa;
   
-  float f4 = fZ - fX + fY - fT;
-  float f3 =
+  float f4 = (fT + fX - fY - fZ) / 4.f;
+  float f3 = (fT - fY - 2*f4) / 2.f;
+  float f2 = (fT - fX - 2*f3) / 2.f;
+  float f1 = fT - f4 - f3 - f2;
+
+//  cmd.desiredThrustsN[0] = CONSTRAIN(f1, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[1] = CONSTRAIN(f2, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[2] = CONSTRAIN(f3, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[3] = CONSTRAIN(f4, minMotorThrust, maxMotorThrust);
+
+  cmd.desiredThrustsN[0] = f1;
+  cmd.desiredThrustsN[1] = f2;
+  cmd.desiredThrustsN[2] = f3;
+  cmd.desiredThrustsN[3] = f4;
 //   as per 3d control
   
   
@@ -111,6 +123,15 @@ V3F QuadControl::BodyRateControl(V3F pqrCmd, V3F pqr)
   V3F momentCmd;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  V3F err = pqrCmd - pqr;
+  // change error to angular accl
+  err = kpPQR * err;
+  // change angular accl to moment
+  momentCmd[0] = Ixx * err[0];
+  momentCmd[1] = Iyy * err[1];
+  momentCmd[2] = Izz * err[2];
+
+
 
   
 
@@ -142,7 +163,26 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   Mat3x3F R = attitude.RotationMatrix_IwrtB();
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  float collAccln = collThrustCmd / mass;
+  float bxcTarget = accelCmd.x / collAccln;
+  float bycTarget = accelCmd.y / collAccln;
+  float bxActual = R(0,2);
+  float byActual = R(1,2);
+  float R21 = R(1,0);
+  float R11 = R(0,0);
+  float R22 = R(1,1);
+  float R12 = R(0,1);
+  float R33 = R(2,2);
 
+  float bxErr = bxcTarget - bxActual;
+  float byErr = bycTarget - byActual;
+
+  float bDotxc = kpBank * bxErr;
+  float bDotyc = kpBank * byErr;
+
+  pqrCmd.x = 1/R33 * (R21*bDotxc - R11*bDotyc);
+  pqrCmd.y = 1/R33 * (R22*bDotxc - R12*bDotyc);
+  pqrCmd.z = 0.f;
 
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
