@@ -223,7 +223,9 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
   float velErr = velZCmd - velZ;
   posErr = kpPosZ * posErr;
   velErr = kpVelZ * velErr;
-  thrust = (posErr + velErr + accelZCmd - CONST_GRAVITY) / R(2,2);
+  verAccln = (posErr + velErr + accelZCmd - CONST_GRAVITY) / R(2,2);
+  verAccln = CONSTRAIN(verAccln, -maxAscentRate/dt, maxDescentRate/dt);
+  thrust = -mass * verAccln;
 
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
@@ -261,15 +263,24 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
   V3F accelCmd = accelCmdFF;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-  V3F posErr = posCmd - pos;
+  if (velCmd.mag() > maxSpeedXY) {
+      velCmd = velCmd.norm() * maxSpeedXY;
+  }
+  V3F posErr = posCmd- pos;
   V3F velErr = velCmd - vel;
 
   posErr = kpPosXY * posErr;
   velErr = kpVelXY * velErr;
 
-  accelCmd = accelCmd + posErr + velErr;
+
+
+//  accelCmd += posErr + velErr;
 //  accelCmd.z = 0;
   
+//  if (accelCmd.mag() > maxAccelXY) {
+//      accelCmd = accelCmd.norm() * maxAccelXY;
+//  }
+//  accelCmd.z = 0;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
