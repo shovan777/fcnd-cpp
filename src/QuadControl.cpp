@@ -261,14 +261,14 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
   V3F accelCmd = accelCmdFF;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-  V3F posErr = posCmd\- pos;
+  V3F posErr = posCmd - pos;
   V3F velErr = velCmd - vel;
 
   posErr = kpPosXY * posErr;
   velErr = kpVelXY * velErr;
 
-  acclCmd += posErr + velErr;
-  accelCmd.z = 0;
+  accelCmd = accelCmd + posErr + velErr;
+//  accelCmd.z = 0;
   
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
