@@ -69,35 +69,40 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   // You'll need the arm length parameter L, and the drag/thrust ratio kappa
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
+    // del me code here
+//    collThrustCmd = mass * CONST_GRAVITY;
+//    momentCmd.x = 0;
+//    momentCmd.y = mass * .1;
+//    momentCmd.z = 0;
+    // upto here
   cmd.desiredThrustsN[0] = mass * 9.81f / 4.f; // front left
   cmd.desiredThrustsN[1] = mass * 9.81f / 4.f; // front right
   cmd.desiredThrustsN[2] = mass * 9.81f / 4.f; // rear left
   cmd.desiredThrustsN[3] = mass * 9.81f / 4.f; // rear right
   float momentX = momentCmd.x;
   float momentY = momentCmd.y;
-  float momentZ = momentCmd.z;
+  float momentZ = -momentCmd.z;
   float l = L / sqrt(2.f);
 //  momentDrag = collThrustCmd * kappa;
   float fT = -collThrustCmd;
   float fX = momentX / l;
   float fY = momentY / l;
-  float fZ = momentZ / kappa;
+  float fZ = -momentZ / kappa;
   
   float f4 = (fT + fX - fY - fZ) / 4.f;
   float f3 = (fT - fY - 2*f4) / 2.f;
   float f2 = (fT - fX - 2*f3) / 2.f;
   float f1 = fT - f4 - f3 - f2;
 
-  cmd.desiredThrustsN[0] = CONSTRAIN(f1, minMotorThrust, maxMotorThrust);
-  cmd.desiredThrustsN[1] = CONSTRAIN(f2, minMotorThrust, maxMotorThrust);
-  cmd.desiredThrustsN[2] = CONSTRAIN(f3, minMotorThrust, maxMotorThrust);
-  cmd.desiredThrustsN[3] = CONSTRAIN(f4, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[0] = CONSTRAIN(f1, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[1] = CONSTRAIN(f2, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[2] = CONSTRAIN(f4, minMotorThrust, maxMotorThrust);
+//  cmd.desiredThrustsN[3] = CONSTRAIN(f3, minMotorThrust, maxMotorThrust);
 
-//  cmd.desiredThrustsN[0] = f1;
-//  cmd.desiredThrustsN[1] = f2;
-//  cmd.desiredThrustsN[2] = f3;
-//  cmd.desiredThrustsN[3] = f4;
+  cmd.desiredThrustsN[0] = f1;
+  cmd.desiredThrustsN[1] = f2;
+  cmd.desiredThrustsN[2] = f4;
+  cmd.desiredThrustsN[3] = f3;
 //   as per 3d control
   
   /////////////////////////////// END STUDENT CODE ////////////////////////////
@@ -161,7 +166,7 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   Mat3x3F R = attitude.RotationMatrix_IwrtB();
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-  float collAccln = collThrustCmd / mass;
+  float collAccln = -collThrustCmd / mass;
   float bxcTarget = accelCmd.x / collAccln;
   float bycTarget = accelCmd.y / collAccln;
   float bxActual = R(0,2);
@@ -180,7 +185,7 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
 
   pqrCmd.x = 1/R33 * (R21*bDotxc - R11*bDotyc);
   pqrCmd.y = 1/R33 * (R22*bDotxc - R12*bDotyc);
-  pqrCmd.z = 0.f;
+//  pqrCmd.z = 0.f;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -211,7 +216,16 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
   float thrust = 0;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  float posErr = posZCmd - posZ;
+  float velErr = velZCmd - velZ;
+  posErr = kpPosZ * posErr;
+  velErr = kpVelZ * velErr;
+  integratedAltitudeError += posErr*dt;
+  float iTerm = KiPosZ * integratedAltitudeError;
 
+  float verAccln = (posErr + velErr + iTerm + accelZCmd - CONST_GRAVITY) / R(2,2);
+  verAccln = CONSTRAIN(verAccln, -maxAscentRate/dt, maxDescentRate/dt);
+  thrust = -mass * verAccln;
 
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
@@ -249,8 +263,24 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
   V3F accelCmd = accelCmdFF;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  if (velCmd.mag() > maxSpeedXY) {
+      velCmd = velCmd.norm() * maxSpeedXY;
+  }
+  V3F posErr = posCmd- pos;
+  V3F velErr = velCmd - vel;
 
+  posErr = kpPosXY * posErr;
+  velErr = kpVelXY * velErr;
+
+
+
+  accelCmd += posErr + velErr;
+  accelCmd.z = 0;
   
+  if (accelCmd.mag() > maxAccelXY) {
+      accelCmd = accelCmd.norm() * maxAccelXY;
+  }
+  accelCmd.z = 0;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
