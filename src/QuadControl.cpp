@@ -79,7 +79,7 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   float momentZ = momentCmd.z;
   float l = L / sqrt(2.f);
 //  momentDrag = collThrustCmd * kappa;
-  float fT = collThrustCmd;
+  float fT = -collThrustCmd;
   float fX = momentX / l;
   float fY = momentY / l;
   float fZ = momentZ / kappa;
@@ -89,17 +89,16 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   float f2 = (fT - fX - 2*f3) / 2.f;
   float f1 = fT - f4 - f3 - f2;
 
-//  cmd.desiredThrustsN[0] = CONSTRAIN(f1, minMotorThrust, maxMotorThrust);
-//  cmd.desiredThrustsN[1] = CONSTRAIN(f2, minMotorThrust, maxMotorThrust);
-//  cmd.desiredThrustsN[2] = CONSTRAIN(f3, minMotorThrust, maxMotorThrust);
-//  cmd.desiredThrustsN[3] = CONSTRAIN(f4, minMotorThrust, maxMotorThrust);
+  cmd.desiredThrustsN[0] = CONSTRAIN(f1, minMotorThrust, maxMotorThrust);
+  cmd.desiredThrustsN[1] = CONSTRAIN(f2, minMotorThrust, maxMotorThrust);
+  cmd.desiredThrustsN[2] = CONSTRAIN(f3, minMotorThrust, maxMotorThrust);
+  cmd.desiredThrustsN[3] = CONSTRAIN(f4, minMotorThrust, maxMotorThrust);
 
-  cmd.desiredThrustsN[0] = f1;
-  cmd.desiredThrustsN[1] = f2;
-  cmd.desiredThrustsN[2] = f3;
-  cmd.desiredThrustsN[3] = f4;
+//  cmd.desiredThrustsN[0] = f1;
+//  cmd.desiredThrustsN[1] = f2;
+//  cmd.desiredThrustsN[2] = f3;
+//  cmd.desiredThrustsN[3] = f4;
 //   as per 3d control
-  
   
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -130,7 +129,6 @@ V3F QuadControl::BodyRateControl(V3F pqrCmd, V3F pqr)
   momentCmd[0] = Ixx * err[0];
   momentCmd[1] = Iyy * err[1];
   momentCmd[2] = Izz * err[2];
-
 
 
   
@@ -183,7 +181,6 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   pqrCmd.x = 1/R33 * (R21*bDotxc - R11*bDotyc);
   pqrCmd.y = 1/R33 * (R22*bDotxc - R12*bDotyc);
   pqrCmd.z = 0.f;
-
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
