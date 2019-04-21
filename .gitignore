@@ -28,3 +28,4 @@ bld/
 build/
 build-CPPSim-Desktop-Debug/
 project/CPPSim.pro.user
+.vscode/

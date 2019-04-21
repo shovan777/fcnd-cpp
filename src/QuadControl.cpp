@@ -84,7 +84,7 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   float momentZ = momentCmd.z;
   float l = L / sqrt(2.f);
 //  momentDrag = collThrustCmd * kappa;
-  float fT = collThrustCmd;
+  float fT = -collThrustCmd;
   float fX = momentX / l;
   float fY = momentY / l;
   float fZ = -momentZ / kappa;
@@ -107,7 +107,6 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   cmd.desiredThrustsN[2] = f4;
   cmd.desiredThrustsN[3] = f3;
 //   as per 3d control
-  
   
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -140,8 +139,11 @@ V3F QuadControl::BodyRateControl(V3F pqrCmd, V3F pqr)
   momentCmd[2] = Izz * err[2];
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 631aebaad19d55313dbefab90a30fc91badce5a9
   
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
@@ -194,7 +196,6 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   pqrCmd.x = 1/R33 * (R21*bDotxc - R11*bDotyc);
   pqrCmd.y = 1/R33 * (R22*bDotxc - R12*bDotyc);
   pqrCmd.z = 0.f;
-
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
