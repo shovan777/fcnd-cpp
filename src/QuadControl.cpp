@@ -173,10 +173,10 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
   float collAccln = -collThrustCmd / mass;
-//  float bxcTarget = CONSTRAIN(accelCmd.x / collAccln, -maxTiltAngle, maxTiltAngle);
-//  float bycTarget = CONSTRAIN(accelCmd.y / collAccln, -maxTiltAngle, maxTiltAngle);
-  float bxcTarget = accelCmd.x / collAccln;
-  float bycTarget = accelCmd.y / collAccln;
+  float bxcTarget = CONSTRAIN(accelCmd.x / collAccln, -maxTiltAngle, maxTiltAngle);
+  float bycTarget = CONSTRAIN(accelCmd.y / collAccln, -maxTiltAngle, maxTiltAngle);
+//  float bxcTarget = accelCmd.x / collAccln;
+//  float bycTarget = accelCmd.y / collAccln;
   float bxActual = R(0,2);
   float byActual = R(1,2);
   float R21 = R(1,0);
